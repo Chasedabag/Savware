@@ -1,6 +1,6 @@
 local aimbotEnabled = false
-local smoothing = 0.8
-local Size1 = UDim2.new(5, 45, 5, 45)  -- This sets the size in pixels
+local smoothing = 0.9
+local Size1 = UDim2.new(45, 45, 45, 45)  -- This sets the size in pixels
 local aimbotKey = Enum.KeyCode.E 
 
 local aimbotLine = Drawing.new("Line")
@@ -176,151 +176,155 @@ coroutine.wrap(createFOVAdjustScript)()
 
  -- Item esp below
  local c = workspace.CurrentCamera
-local ps = game:GetService("Players")
-local lp = ps.LocalPlayer
-local rs = game:GetService("RunService")
+ local ps = game:GetService("Players")
+ local lp = ps.LocalPlayer
+ local rs = game:GetService("RunService")
+ 
+ -- Table to track ESP objects
+ local playerESP = {}
+ 
+ -- Function to get the real tool name
+ local function ftool(cr)
+     for _, b in ipairs(cr:GetChildren()) do 
+         if b.Name == 'Gun' then
+             return b:GetAttribute("Real")
+         end
+     end
+     return 'empty'
+ end
+ 
+ -- Function to create and update ESP
+ local function esp(p, cr)
+     if p == lp then return end
+ 
+     local h = cr:WaitForChild("Humanoid")
+     local hrp = cr:WaitForChild("HumanoidRootPart")
+ 
+     local text = Drawing.new('Text')
+     text.Visible = true
+     text.Center = true
+     text.Outline = true
+     text.Color = Color3.new(1, 1, 1)
+     text.Font = 2
+     text.Size = 13
+ 
+     local c1, c2, c3
+ 
+     local function dc()
+         if text then
+             text.Visible = false
+             text:Remove()
+         end
+         if c1 then c1:Disconnect() end
+         if c2 then c2:Disconnect() end
+         if c3 then c3:Disconnect() end
+         playerESP[p] = nil -- Remove from tracking table
+         print("ESP removed for:", p.Name)
+     end
+ 
+     c2 = cr.AncestryChanged:Connect(function(_, parent)
+         if not parent then
+             print("Character removed:", p.Name)
+             dc()
+         end
+     end)
+ 
+     c3 = h.HealthChanged:Connect(function(v)
+         if (v <= 0) or (h:GetState() == Enum.HumanoidStateType.Dead) then
+             print("Player dead:", p.Name)
+             dc()
+         end
+     end)
+ 
+     c1 = rs.Heartbeat:Connect(function()
+         local hrp_pos, hrp_os = c:WorldToViewportPoint(hrp.Position)
+         if hrp_os then
+             text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35) -- Adjust Y position to move the nametag higher
+             text.Text = '[ ' .. tostring(ftool(cr)) .. ' ]'
+             text.Visible = true
+         else
+             text.Visible = false
+         end
+     end)
+ 
+     -- Track ESP in the playerESP table
+     playerESP[p] = text
+     print("ESP created for:", p.Name)
+ end
+ 
+ -- Function to update ESP for all players
+ local function updateAllESP()
+     for _, p in ipairs(ps:GetPlayers()) do
+         if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+             if p.Team ~= lp.Team then
+                 if not playerESP[p] then
+                     esp(p, p.Character)
+                 end
+             else
+                 if playerESP[p] then
+                     print("Hiding ESP for same team player:", p.Name)
+                     playerESP[p].Visible = false
+                     playerESP[p]:Remove()
+                     playerESP[p] = nil
+                 end
+             end
+         end
+     end
+ end
+ 
+ -- Function to handle player addition
+ local function p_added(p)
+     p.CharacterAdded:Connect(function(cr)
+         if p.Team ~= lp.Team then
+             esp(p, cr)
+         end
+     end)
+ 
+     -- Handle already existing character
+     if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+         if p.Team ~= lp.Team then
+             esp(p, p.Character)
+         end
+     end
+ end
+ 
+ -- Function to handle player removal
+ local function p_removed(p)
+     if playerESP[p] then
+         print("Removing ESP for player:", p.Name)
+         playerESP[p].Visible = false
+         playerESP[p]:Remove()
+         playerESP[p] = nil
+     end
+ end
+ 
+ -- Function to handle team change
+ local function onTeamChanged()
+     -- Clear ESP for players on the same team
+     for p, esp in pairs(playerESP) do
+         if p.Team == lp.Team then
+             print("Removing ESP for same team player:", p.Name)
+             esp.Visible = false
+             esp:Remove()
+             playerESP[p] = nil
+         end
+     end
+     
+     -- Update ESP for all players
+     updateAllESP()
+ end
+ 
+ -- Connect to team change
+ lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
+ 
+ -- Connect to player joining and leaving
+ ps.PlayerAdded:Connect(p_added)
+ ps.PlayerRemoving:Connect(p_removed)
+ 
+ -- Initial ESP update
+ updateAllESP()
 
--- Table to track ESP objects
-local playerESP = {}
-
--- Function to get the real tool name
-local function ftool(cr)
-    for _, b in ipairs(cr:GetChildren()) do 
-        if b.Name == 'Gun' then
-            return b:GetAttribute("Real")
-        end
-    end
-    return 'empty'
-end
-
--- Function to create and update ESP
-local function esp(p, cr)
-    if p == lp then return end
-
-    local h = cr:WaitForChild("Humanoid")
-    local hrp = cr:WaitForChild("HumanoidRootPart")
-
-    local text = Drawing.new('Text')
-    text.Visible = true
-    text.Center = true
-    text.Outline = true
-    text.Color = Color3.new(1, 1, 1)
-    text.Font = 2
-    text.Size = 13
-
-    local c1
-    local c2
-    local c3
-
-    local function dc()
-        text.Visible = false
-        text:Remove()
-        if c1 then c1:Disconnect() end
-        if c2 then c2:Disconnect() end
-        if c3 then c3:Disconnect() end
-        playerESP[p] = nil -- Remove from tracking table
-    end
-
-    c2 = cr.AncestryChanged:Connect(function(_, parent)
-        if not parent then
-            dc()
-        end
-    end)
-
-    c3 = h.HealthChanged:Connect(function(v)
-        if (v <= 0) or (h:GetState() == Enum.HumanoidStateType.Dead) then
-            dc()
-        end
-    end)
-
-    c1 = rs.Heartbeat:Connect(function()
-        local hrp_pos, hrp_os = c:WorldToViewportPoint(hrp.Position)
-        if hrp_os then
-            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35) -- Adjust Y position to move the nametag higher
-            text.Text = '[ ' .. tostring(ftool(cr)) .. ' ]'
-            text.Visible = true
-        else
-            text.Visible = false
-        end
-    end)
-
-    -- Track ESP in the playerESP table
-    playerESP[p] = text
-end
-
--- Function to update ESP for all players
-local function updateAllESP()
-    for _, p in ipairs(ps:GetPlayers()) do
-        if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            -- Check if the player is on a different team
-            if p.Team ~= lp.Team then
-                if not playerESP[p] then
-                    esp(p, p.Character)
-                end
-            else
-                -- Hide and remove ESP for players on the same team if they are in the table
-                if playerESP[p] then
-                    playerESP[p].Visible = false
-                    playerESP[p]:Remove()
-                    playerESP[p] = nil
-                end
-            end
-        end
-    end
-end
-
--- Function to handle player addition
-local function p_added(p)
-    p.CharacterAdded:Connect(function(cr)
-        if p.Team ~= lp.Team then
-            esp(p, cr)
-        end
-    end)
-
-    -- Handle already existing character
-    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-        if p.Team ~= lp.Team then
-            esp(p, p.Character)
-        end
-    end
-end
-
--- Function to handle player removal
-local function p_removed(p)
-    if playerESP[p] then
-        playerESP[p].Visible = false
-        playerESP[p]:Remove()
-        playerESP[p] = nil
-    end
-end
-
--- Function to handle team change
-local function onTeamChanged()
-    -- Clear ESP for players on the same team
-    for p, esp in pairs(playerESP) do
-        if p.Team == lp.Team then
-            esp.Visible = false
-            esp:Remove()
-            playerESP[p] = nil
-        end
-    end
-    
-    -- Update ESP for all players
-    updateAllESP()
-end
-
--- Connect to team change
-lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
-
--- Connect to player joining and leaving
-ps.PlayerAdded:Connect(p_added)
-ps.PlayerRemoving:Connect(p_removed)
-
--- Initial ESP update
-updateAllESP()
-
---Name esp below
-
+--Name esp
 local c = workspace.CurrentCamera
 local ps = game:GetService("Players")
 local lp = ps.LocalPlayer
