@@ -25,181 +25,196 @@ RightGroupBox:AddToggle('Aimbot', {
     Callback = function(Value)
     end})
     local aimbotEnabled = false
-local smoothing = 0.9
-local Size1 = UDim2.new(0, 100, 0, 100)  -- This sets the size in pixels
-local aimbotKey = Enum.KeyCode.E 
-
-local aimbotLine = Drawing.new("Line")
-aimbotLine.Color = Color3.new(0, 0, 0) 
-aimbotLine.Thickness = 1
-aimbotLine.Visible = true
-
-local Converted = {
-	["_ScreenGui"] = Instance.new("ScreenGui"),
-	["_Frame"] = Instance.new("Frame"),
-	["_UIStroke"] = Instance.new("UIStroke"),
-	["_UIGradient"] = Instance.new("UIGradient"),
-	["_UICorner"] = Instance.new("UICorner"),
-	["_rotation"] = Instance.new("LocalScript"),
-	["_mouse"] = Instance.new("LocalScript"),
-	["_fov"] = Instance.new("LocalScript"),
-}
-
-
-Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local existingGui = game:GetService("CoreGui"):FindFirstChild("_ScreenGui")
-if existingGui then
-    existingGui:Destroy() 
-end
-
-Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
-
-Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Frame"].BackgroundTransparency = 1
-Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderSizePixel = 0
-Converted["_Frame"].AnchorPoint = Vector2.new(0.5, 0.5) 
-Converted["_Frame"].Position = UDim2.new(0.5, 0, 0.484, 0)
-Converted["_Frame"].Size = UDim2.new(0, 0, 0, 0)
-Converted["_Frame"].Parent = Converted["_ScreenGui"]
-
-Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke"].Thickness = 2
-Converted["_UIStroke"].Parent = Converted["_Frame"]
-
-Converted["_UIGradient"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-	ColorSequenceKeypoint.new(0.019999999552965164, Color3.fromRGB(0, 0, 0)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 44, 255))
-}
-Converted["_UIGradient"].Parent = Converted["_UIStroke"]
-
-Converted["_UICorner"].CornerRadius = UDim.new(1, 0)
-Converted["_UICorner"].Parent = Converted["_Frame"]
-
-
-local function findClosestTarget()
-    local closestTarget = nil
-    local closestDistance = math.huge
-    local player = game:GetService("Players").LocalPlayer
-    local fovCircleRadius = Converted["_Frame"].Size.X.Offset / 2
-    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.55) -- Adjusted to match the FOV circle
-
-    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
-            local head = v.Character.Head
-            local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
-            if onScreen then
-                local distance = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
-                if distance < fovCircleRadius and distance < closestDistance then
-                    closestDistance = distance
-                    closestTarget = head
+    local aimbotEnabled = false
+    local smoothing = 0.9
+    local Size1 = UDim2.new(0, 100, 0, 100)  -- This sets the size in pixels
+    local aimbotKey = Enum.KeyCode.E 
+    
+    local aimbotLine = Drawing.new("Line")
+    aimbotLine.Color = Color3.new(0, 0, 0) 
+    aimbotLine.Thickness = 1
+    aimbotLine.Visible = true
+    
+    local Converted = {
+        ["_ScreenGui"] = Instance.new("ScreenGui"),
+        ["_Frame"] = Instance.new("Frame"),
+        ["_UIStroke"] = Instance.new("UIStroke"),
+        ["_UIGradient"] = Instance.new("UIGradient"),
+        ["_UICorner"] = Instance.new("UICorner"),
+        ["_rotation"] = Instance.new("LocalScript"),
+        ["_mouse"] = Instance.new("LocalScript"),
+        ["_fov"] = Instance.new("LocalScript"),
+    }
+    
+    
+    Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    local existingGui = game:GetService("CoreGui"):FindFirstChild("_ScreenGui")
+    if existingGui then
+        existingGui:Destroy() 
+    end
+    
+    Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
+    
+    Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Converted["_Frame"].BackgroundTransparency = 1
+    Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Converted["_Frame"].BorderSizePixel = 0
+    Converted["_Frame"].AnchorPoint = Vector2.new(0.5, 0.5) 
+    Converted["_Frame"].Position = UDim2.new(0.5, 0, 0.484, 0)
+    Converted["_Frame"].Size = UDim2.new(0, 0, 0, 0)
+    Converted["_Frame"].Parent = Converted["_ScreenGui"]
+    
+    Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
+    Converted["_UIStroke"].Thickness = 2
+    Converted["_UIStroke"].Parent = Converted["_Frame"]
+    
+    Converted["_UIGradient"].Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+        ColorSequenceKeypoint.new(0.019999999552965164, Color3.fromRGB(0, 0, 0)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 44, 255))
+    }
+    Converted["_UIGradient"].Parent = Converted["_UIStroke"]
+    
+    Converted["_UICorner"].CornerRadius = UDim.new(1, 0)
+    Converted["_UICorner"].Parent = Converted["_Frame"]
+    
+    
+    local function findClosestTarget()
+        local closestTarget = nil
+        local closestDistance = math.huge
+        local player = game:GetService("Players").LocalPlayer
+        local fovCircleRadius = Converted["_Frame"].Size.X.Offset / 2
+        local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.55) -- Adjusted to match the FOV circle
+    
+        for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+                -- Team Check
+                if v.Team ~= player.Team then
+                    local head = v.Character.Head
+                    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
+                    if onScreen then
+                        local distance = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                        if distance < fovCircleRadius and distance < closestDistance then
+                            closestDistance = distance
+                            closestTarget = head
+                        end
+                    end
                 end
             end
         end
+    
+        return closestTarget
     end
-
-    return closestTarget
-end
-
-local function aimAtTarget(target)
-    local player = game:GetService("Players").LocalPlayer
-    local mouse = player:GetMouse()
-
-    -- Get the 2D screen position of the target
-    local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
-    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
-
-    local delta = Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter
     
-
-    local distance = (workspace.CurrentCamera.CFrame.Position - target.Position).Magnitude
-    local correctionFactor = math.clamp(distance / 50, 0.1, 1) 
     
-
-    local newMousePos = delta * correctionFactor * smoothing
-
-    mousemoverel(newMousePos.X, newMousePos.Y)
-
-    aimbotLine.From = screenCenter
-    aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
-end
-
--- Aimbot logic
-game:GetService("RunService").RenderStepped:Connect(function()
-    local target = findClosestTarget()
-    if target then
-        -- Update the line position even if the aimbot is not active
+    
+    
+    
+    local function aimAtTarget(target)
+        local player = game:GetService("Players").LocalPlayer
+        local mouse = player:GetMouse()
+        -- Adjust the mouse to aim at the target (target is assumed to be the head of the character)
+        mouse.Hit = target.CFrame
+    end
+    
+    
+    local function aimAtTarget(target)
+        local player = game:GetService("Players").LocalPlayer
+        local mouse = player:GetMouse()
+    
+        -- Get the 2D screen position of the target
         local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
-        aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+        local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+    
+        local delta = Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter
+        
+    
+        local distance = (workspace.CurrentCamera.CFrame.Position - target.Position).Magnitude
+        local correctionFactor = math.clamp(distance / 50, 0.1, 1) 
+        
+    
+        local newMousePos = delta * correctionFactor * smoothing
+    
+        mousemoverel(newMousePos.X, newMousePos.Y)
+    
+        aimbotLine.From = screenCenter
         aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
-
-        if aimbotEnabled then
-            aimAtTarget(target)
+    end
+    
+    -- Aimbot logic
+    game:GetService("RunService").RenderStepped:Connect(function()
+        local target = findClosestTarget()
+        if target then
+            -- Update the line position even if the aimbot is not active
+            local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
+            aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+            aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
+    
+            if aimbotEnabled then
+                aimAtTarget(target)
+            end
+        else
+            aimbotLine.To = aimbotLine.From
         end
-    else
-        aimbotLine.To = aimbotLine.From
+    end)
+    
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.KeyCode == aimbotKey then
+            aimbotEnabled = true
+        end
+    end)
+    
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.KeyCode == aimbotKey then
+            aimbotEnabled = false
+        end
+    end)
+    
+    local function createRotationScript()
+        local script = Instance.new("LocalScript")
+        script.Name = "rotation"
+        script.Parent = Converted["_Frame"]
+    
+        local frame = script.Parent
+        local rotationSpeed = 10
+    
+        local function rotateFrame()
+            while true do
+                frame.Rotation = frame.Rotation + rotationSpeed
+                if frame.Rotation >= 360 then
+                    frame.Rotation = 0
+                end
+                wait(0.01)
+            end
+        end
+    
+        rotateFrame()
     end
-end)
-
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == aimbotKey then
-        aimbotEnabled = true
+    
+    local function createFOVAdjustScript()
+        local script = Instance.new("LocalScript")
+        script.Name = "fov"
+        script.Parent = Converted["_Frame"]
+    
+        local frame = script.Parent
+        local camera = workspace.CurrentCamera
+    
+        local function updateFrameSize()
+            local fov = camera.FieldOfView
+            local scaleFactorX = Size1.X.Offset / fov  -- Extract X offset for scaling
+            local scaleFactorY = Size1.Y.Offset / fov  -- Extract Y offset for scaling
+            local newSize = UDim2.new(0, 200 * scaleFactorX, 0, 200 * scaleFactorY)
+            frame.Size = newSize
+        end
+    
+        updateFrameSize()
+        camera:GetPropertyChangedSignal("FieldOfView"):Connect(updateFrameSize)
     end
-end)
-
-game:GetService("UserInputService").InputEnded:Connect(function(input)
-    if input.KeyCode == aimbotKey then
-        aimbotEnabled = false
-    end
-end)
-
-local function createRotationScript()
-	local script = Instance.new("LocalScript")
-	script.Name = "rotation"
-	script.Parent = Converted["_Frame"]
-
-	local frame = script.Parent
-	local rotationSpeed = 10
-
-	local function rotateFrame()
-		while true do
-			frame.Rotation = frame.Rotation + rotationSpeed
-			if frame.Rotation >= 360 then
-				frame.Rotation = 0
-			end
-			wait(0.01)
-		end
-	end
-
-	rotateFrame()
-end
-
-local function createFOVAdjustScript()
-    local script = Instance.new("LocalScript")
-    script.Name = "fov"
-    script.Parent = Converted["_Frame"]
-
-    local frame = script.Parent
-    local camera = workspace.CurrentCamera
-
-    local function updateFrameSize()
-        local fov = camera.FieldOfView
-        local scaleFactorX = Size1.X.Offset / fov  -- Extract X offset for scaling
-        local scaleFactorY = Size1.Y.Offset / fov  -- Extract Y offset for scaling
-        local newSize = UDim2.new(0, 200 * scaleFactorX, 0, 200 * scaleFactorY)
-        frame.Size = newSize
-    end
-
-    updateFrameSize()
-    camera:GetPropertyChangedSignal("FieldOfView"):Connect(updateFrameSize)
-end
-
-
-coroutine.wrap(createRotationScript)()
-coroutine.wrap(createFOVAdjustScript)()
-
+    
+    
+    coroutine.wrap(createRotationScript)()
+    coroutine.wrap(createFOVAdjustScript)()
 
 
 RightGroupBox:AddToggle('MyToggle', {
@@ -482,3 +497,4 @@ ps.PlayerRemoving:Connect(p_removed)
 -- Initial ESP update
 updateAllESP()
 
+  
