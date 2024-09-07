@@ -1,7 +1,7 @@
 local aimbotEnabled = false
 local smoothing = 0.8
-local Size1 = UDim2.new(0, 45, 0, 45)  -- This sets the size in pixels
-local aimbotKey = Enum.KeyCode.E 
+local Size1 = UDim2.new(0, 100, 0, 100)  -- This sets the size in pixels
+local aimbotKey = Enum.KeyCode.X
 
 local aimbotLine = Drawing.new("Line")
 aimbotLine.Color = Color3.new(0, 0, 0) 
@@ -264,9 +264,8 @@ local c = workspace.CurrentCamera
 local ps = game:GetService("Players")
 local lp = ps.LocalPlayer
 local rs = game:GetService("RunService")
-if localplayer.Team == player.Team
-
 local function esp(p, cr)
+    if p == lp then return end
     local h = cr:WaitForChild("Humanoid")
     local hrp = cr:WaitForChild("Head")
 
