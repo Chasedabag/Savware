@@ -1,0 +1,342 @@
+local aimbotEnabled = false
+local smoothing = 0.8
+local Size1 = UDim2.new(0, 45, 0, 45)  -- This sets the size in pixels
+local aimbotKey = Enum.KeyCode.E 
+
+local aimbotLine = Drawing.new("Line")
+aimbotLine.Color = Color3.new(0, 0, 0) 
+aimbotLine.Thickness = 1
+aimbotLine.Visible = true
+
+local Converted = {
+	["_ScreenGui"] = Instance.new("ScreenGui"),
+	["_Frame"] = Instance.new("Frame"),
+	["_UIStroke"] = Instance.new("UIStroke"),
+	["_UIGradient"] = Instance.new("UIGradient"),
+	["_UICorner"] = Instance.new("UICorner"),
+	["_rotation"] = Instance.new("LocalScript"),
+	["_mouse"] = Instance.new("LocalScript"),
+	["_fov"] = Instance.new("LocalScript"),
+}
+
+
+Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local existingGui = game:GetService("CoreGui"):FindFirstChild("_ScreenGui")
+if existingGui then
+    existingGui:Destroy() 
+end
+
+Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
+
+Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_Frame"].BackgroundTransparency = 1
+Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+Converted["_Frame"].BorderSizePixel = 0
+Converted["_Frame"].AnchorPoint = Vector2.new(0.5, 0.5) 
+Converted["_Frame"].Position = UDim2.new(0.5, 0, 0.484, 0)
+Converted["_Frame"].Size = UDim2.new(0, 0, 0, 0)
+Converted["_Frame"].Parent = Converted["_ScreenGui"]
+
+Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
+Converted["_UIStroke"].Thickness = 2
+Converted["_UIStroke"].Parent = Converted["_Frame"]
+
+Converted["_UIGradient"].Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.019999999552965164, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 44, 255))
+}
+Converted["_UIGradient"].Parent = Converted["_UIStroke"]
+
+Converted["_UICorner"].CornerRadius = UDim.new(1, 0)
+Converted["_UICorner"].Parent = Converted["_Frame"]
+
+
+local function findClosestTarget()
+    local closestTarget = nil
+    local closestDistance = math.huge
+    local player = game:GetService("Players").LocalPlayer
+    local fovCircleRadius = Converted["_Frame"].Size.X.Offset / 2
+    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.55) -- Adjusted to match the FOV circle
+
+    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+            local head = v.Character.Head
+            local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
+            if onScreen then
+                local distance = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                if distance < fovCircleRadius and distance < closestDistance then
+                    closestDistance = distance
+                    closestTarget = head
+                end
+            end
+        end
+    end
+
+    return closestTarget
+end
+
+local function aimAtTarget(target)
+    local player = game:GetService("Players").LocalPlayer
+    local mouse = player:GetMouse()
+
+    -- Get the 2D screen position of the target
+    local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
+    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+
+    local delta = Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter
+    
+
+    local distance = (workspace.CurrentCamera.CFrame.Position - target.Position).Magnitude
+    local correctionFactor = math.clamp(distance / 50, 0.1, 1) 
+    
+
+    local newMousePos = delta * correctionFactor * smoothing
+
+    mousemoverel(newMousePos.X, newMousePos.Y)
+
+    aimbotLine.From = screenCenter
+    aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
+end
+
+-- Aimbot logic
+game:GetService("RunService").RenderStepped:Connect(function()
+    local target = findClosestTarget()
+    if target then
+        -- Update the line position even if the aimbot is not active
+        local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
+        aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+        aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
+
+        if aimbotEnabled then
+            aimAtTarget(target)
+        end
+    else
+        aimbotLine.To = aimbotLine.From
+    end
+end)
+
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == aimbotKey then
+        aimbotEnabled = true
+    end
+end)
+
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.KeyCode == aimbotKey then
+        aimbotEnabled = false
+    end
+end)
+
+local function createRotationScript()
+	local script = Instance.new("LocalScript")
+	script.Name = "rotation"
+	script.Parent = Converted["_Frame"]
+
+	local frame = script.Parent
+	local rotationSpeed = 10
+
+	local function rotateFrame()
+		while true do
+			frame.Rotation = frame.Rotation + rotationSpeed
+			if frame.Rotation >= 360 then
+				frame.Rotation = 0
+			end
+			wait(0.01)
+		end
+	end
+
+	rotateFrame()
+end
+
+local function createFOVAdjustScript()
+    local script = Instance.new("LocalScript")
+    script.Name = "fov"
+    script.Parent = Converted["_Frame"]
+
+    local frame = script.Parent
+    local camera = workspace.CurrentCamera
+
+    local function updateFrameSize()
+        local fov = camera.FieldOfView
+        local scaleFactorX = Size1.X.Offset / fov  -- Extract X offset for scaling
+        local scaleFactorY = Size1.Y.Offset / fov  -- Extract Y offset for scaling
+        local newSize = UDim2.new(0, 200 * scaleFactorX, 0, 200 * scaleFactorY)
+        frame.Size = newSize
+    end
+
+    updateFrameSize()
+    camera:GetPropertyChangedSignal("FieldOfView"):Connect(updateFrameSize)
+end
+
+
+coroutine.wrap(createRotationScript)()
+coroutine.wrap(createFOVAdjustScript)()
+
+local c = workspace.CurrentCamera
+local ps = game:GetService("Players")
+local lp = ps.LocalPlayer
+local rs = game:GetService("RunService")
+
+local function ftool(cr)
+    for a,b in next, cr:GetChildren() do 
+        if b.Name == 'Gun' then
+            return b:GetAttribute("Real")
+        end
+    end
+    return 'empty'
+end
+
+
+local function esp(p,cr)
+    local h = cr:WaitForChild("Humanoid")
+    local hrp = cr:WaitForChild("HumanoidRootPart")
+
+    local text = Drawing.new('Text')
+    text.Visible = true
+    text.Center = true
+    text.Outline = true
+    text.Color = Color3.new(1,1,1)
+    text.Font = 2
+    text.Size = 13
+
+    local c1 
+    local c2
+    local c3 
+
+    local function dc()
+        text.Visible = true
+        text:Remove()
+        if c3 then
+            c1:Disconnect()
+            c2:Disconnect()
+            c3:Disconnect()
+            c1 = nil 
+            c2 = nil
+            c3 = nil
+        end
+    end
+
+    c2 = cr.AncestryChanged:Connect(function(_,parent)
+        if not parent then
+            dc()
+        end
+    end)
+
+    c3 = h.HealthChanged:Connect(function(v)
+        if (v<=0) or (h:GetState() == Enum.HumanoidStateType.Dead) then
+            dc()
+        end
+    end)
+
+    c1 = rs.Heartbeat:Connect(function()
+        local hrp_pos,hrp_os = c:WorldToViewportPoint(hrp.Position)
+        if hrp_os then
+            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35) -- Adjust Y position to move the nametag higher
+            text.Text = '[ '..tostring(ftool(cr))..' ]'
+            text.Visible = true
+        else
+            text.Visible = true
+        end
+    end)
+
+end
+
+local function p_added(p)
+    if p.Character then
+        esp(p,p.Character)
+    end
+    p.CharacterAdded:Connect(function(cr)
+        esp(p,cr)
+    end)
+end
+
+for a,b in next, ps:GetPlayers() do 
+    if b ~= lp then
+        p_added(b)
+    end
+end
+
+ps.PlayerAdded:Connect(p_added)
+
+local c = workspace.CurrentCamera
+local ps = game:GetService("Players")
+local lp = ps.LocalPlayer
+local rs = game:GetService("RunService")
+if localplayer.Team == player.Team
+
+local function esp(p, cr)
+    local h = cr:WaitForChild("Humanoid")
+    local hrp = cr:WaitForChild("Head")
+
+    local text = Drawing.new("Text")
+    text.Visible = true
+    text.Center = true
+    text.Outline = true
+    text.Font = 2
+    text.Color = Color3.fromRGB(255, 255, 255)
+    text.Size = 13
+    teamcheck = true
+
+    local c1
+    local c2
+    local c3
+
+    local function dc()
+        text.Visible = false
+        text:Remove()
+        if c1 then
+            c1:Disconnect()
+            c1 = nil
+        end
+        if c2 then
+            c2:Disconnect()
+            c2 = nil
+        end
+        if c3 then
+            c3:Disconnect()
+            c3 = nil
+        end
+    end
+
+    c2 = cr.AncestryChanged:Connect(function(_, parent)
+        if not parent then
+            dc()
+        end
+    end)
+
+    c3 = h.HealthChanged:Connect(function(v)
+        if (v <= 0) or (h:GetState() == Enum.HumanoidStateType.Dead) then
+            dc()
+        end
+    end)
+
+    c1 = rs.RenderStepped:Connect(function()
+        local hrp_pos, hrp_onscreen = c:WorldToViewportPoint(hrp.Position)
+        if hrp_onscreen then
+            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - 35) -- Adjust Y position to move the nametag higher
+            text.Text = p.Name
+            text.Visible = true
+        else
+            text.Visible = false
+        end
+    end)
+end
+
+local function p_added(p)
+    if p.Character then
+        esp(p, p.Character)
+    end
+    p.CharacterAdded:Connect(function(cr)
+        esp(p, cr)
+    end)
+end
+
+for i, p in next, ps:GetPlayers() do
+    if p ~= lp then
+        p_added(p)
+    end
+end
+
+ps.PlayerAdded:Connect(p_added)
