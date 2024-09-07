@@ -1,6 +1,6 @@
 local aimbotEnabled = false
 local smoothing = 0.8
-local Size1 = UDim2.new(0, 45, 0, 45)  -- This sets the size in pixels
+local Size1 = UDim2.new(0, 60, 0, 60)  -- This sets the size in pixels
 local aimbotKey = Enum.KeyCode.X
 
 local aimbotLine = Drawing.new("Line")
