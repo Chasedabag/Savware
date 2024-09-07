@@ -1,6 +1,6 @@
 local aimbotEnabled = false
 local smoothing = 0.8
-local Size1 = UDim2.new(0, 20, 0, 20)  -- This sets the size in pixels
+local Size1 = UDim2.new(0, 35, 0, 35)  -- This sets the size in pixels
 local aimbotKey = Enum.KeyCode.X
 
 local aimbotLine = Drawing.new("Line")
@@ -199,7 +199,7 @@ local function esp(p,cr)
     text.Outline = true
     text.Color = Color3.new(1,1,1)
     text.Font = 2
-    text.Size = 18
+    text.Size = 13
 
     local c1 
     local c2
@@ -275,7 +275,7 @@ local function esp(p, cr)
     text.Outline = true
     text.Font = 2
     text.Color = Color3.fromRGB(255, 255, 255)
-    text.Size = 13
+    text.Size = 15
     teamcheck = true
 
     local c1
