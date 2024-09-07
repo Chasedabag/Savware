@@ -1,6 +1,6 @@
 local aimbotEnabled = false
 local smoothing = 0.8
-local Size1 = UDim2.new(0, 45, 0, 45)  -- This sets the size in pixels
+local Size1 = UDim2.new(5, 45, 5, 45)  -- This sets the size in pixels
 local aimbotKey = Enum.KeyCode.E 
 
 local aimbotLine = Drawing.new("Line")
@@ -174,7 +174,8 @@ end
 coroutine.wrap(createRotationScript)()
 coroutine.wrap(createFOVAdjustScript)()
 
-local c = workspace.CurrentCamera
+ -- Item esp below
+ local c = workspace.CurrentCamera
 local ps = game:GetService("Players")
 local lp = ps.LocalPlayer
 local rs = game:GetService("RunService")
@@ -207,21 +208,16 @@ local function esp(p, cr)
     text.Font = 2
     text.Size = 13
 
-    local c1 
+    local c1
     local c2
-    local c3 
+    local c3
 
     local function dc()
         text.Visible = false
         text:Remove()
-        if c3 then
-            c1:Disconnect()
-            c2:Disconnect()
-            c3:Disconnect()
-            c1 = nil 
-            c2 = nil
-            c3 = nil
-        end
+        if c1 then c1:Disconnect() end
+        if c2 then c2:Disconnect() end
+        if c3 then c3:Disconnect() end
         playerESP[p] = nil -- Remove from tracking table
     end
 
@@ -240,7 +236,7 @@ local function esp(p, cr)
     c1 = rs.Heartbeat:Connect(function()
         local hrp_pos, hrp_os = c:WorldToViewportPoint(hrp.Position)
         if hrp_os then
-            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35) -- Adjust Y position to move the nametag higher
+            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - 35) -- Adjust Y position to move the nametag higher
             text.Text = '[ ' .. tostring(ftool(cr)) .. ' ]'
             text.Visible = true
         else
@@ -275,23 +271,34 @@ end
 
 -- Function to handle player addition
 local function p_added(p)
-    if p.Character then
-        if p.Team ~= lp.Team then
-            esp(p, p.Character)
-        end
-    end
     p.CharacterAdded:Connect(function(cr)
         if p.Team ~= lp.Team then
             esp(p, cr)
         end
     end)
+
+    -- Handle already existing character
+    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+        if p.Team ~= lp.Team then
+            esp(p, p.Character)
+        end
+    end
+end
+
+-- Function to handle player removal
+local function p_removed(p)
+    if playerESP[p] then
+        playerESP[p].Visible = false
+        playerESP[p]:Remove()
+        playerESP[p] = nil
+    end
 end
 
 -- Function to handle team change
 local function onTeamChanged()
-    -- Clear old ESP
+    -- Clear ESP for players on the same team
     for p, esp in pairs(playerESP) do
-        if esp then
+        if p.Team == lp.Team then
             esp.Visible = false
             esp:Remove()
             playerESP[p] = nil
@@ -307,17 +314,12 @@ lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
 
 -- Connect to player joining and leaving
 ps.PlayerAdded:Connect(p_added)
-ps.PlayerRemoving:Connect(function(p)
-    if playerESP[p] then
-        playerESP[p].Visible = false
-        playerESP[p]:Remove()
-        playerESP[p] = nil
-    end
-end)
+ps.PlayerRemoving:Connect(p_removed)
 
 -- Initial ESP update
 updateAllESP()
 
+--Name esp below
 
 local c = workspace.CurrentCamera
 local ps = game:GetService("Players")
@@ -330,7 +332,7 @@ local playerESP = {}
 -- Function to create and update ESP
 local function createESP(p, cr)
     if p == lp then return end
-    
+
     local function updateESP()
         local lpTeam = lp.Team
         local pTeam = p.Team
@@ -403,39 +405,51 @@ local function updateAllESP()
     end
 end
 
--- Function to check team changes
-local function onTeamChanged()
-    -- Clear old ESP
-    for p, esp in pairs(playerESP) do
-        if esp then
-            esp.Visible = false
-            esp:Remove()
+-- Function to handle player addition
+local function p_added(player)
+    player.CharacterAdded:Connect(function(cr)
+        if cr:FindFirstChild("Head") then
+            createESP(player, cr)
         end
-    end
-    playerESP = {} -- Reset playerESP table
-    
-    -- Update ESP for all players
-    updateAllESP()
-end
+    end)
 
-lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
-
-
-ps.PlayerAdded:Connect(function(player)
+    -- Handle already existing character
     if player.Character and player.Character:FindFirstChild("Head") then
         createESP(player, player.Character)
     end
-end)
+end
 
-ps.PlayerRemoving:Connect(function(player)
+-- Function to handle player removal
+local function p_removed(player)
     if playerESP[player] then
         playerESP[player].Visible = false
         playerESP[player]:Remove()
         playerESP[player] = nil
     end
-end)
+end
 
+-- Function to check team changes
+local function onTeamChanged()
+    -- Clear ESP for players on the same team
+    for p, esp in pairs(playerESP) do
+        if p.Team == lp.Team then
+            esp.Visible = false
+            esp:Remove()
+            playerESP[p] = nil
+        end
+    end
+    
+    -- Update ESP for all players
+    updateAllESP()
+end
 
+-- Connect to team change
+lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
+
+-- Connect to player joining and leaving
+ps.PlayerAdded:Connect(p_added)
+ps.PlayerRemoving:Connect(p_removed)
+
+-- Initial ESP update
 updateAllESP()
-
 
