@@ -236,7 +236,7 @@ local function esp(p, cr)
     c1 = rs.Heartbeat:Connect(function()
         local hrp_pos, hrp_os = c:WorldToViewportPoint(hrp.Position)
         if hrp_os then
-            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - 35) -- Adjust Y position to move the nametag higher
+            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35) -- Adjust Y position to move the nametag higher
             text.Text = '[ ' .. tostring(ftool(cr)) .. ' ]'
             text.Visible = true
         else
@@ -452,4 +452,3 @@ ps.PlayerRemoving:Connect(p_removed)
 
 -- Initial ESP update
 updateAllESP()
-
