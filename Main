@@ -339,3 +339,76 @@ for i, p in next, ps:GetPlayers() do
 end
 
 ps.PlayerAdded:Connect(p_added)
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+-- Function to create ESP box with health bar and team check
+local function createBoxWithHealthAndTeamCheck(player)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+        -- Team Check (ignore teammates)
+        if player.TeamColor == localPlayer.TeamColor then
+            return
+        end
+
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+
+        -- Create the box
+        local box = Drawing.new("Square")
+        box.Color = Color3.new(1, 0, 0) -- Red color for enemies
+        box.Thickness = 2
+        box.Transparency = 1
+        box.Filled = false
+
+        -- Create the health bar
+        local healthBar = Drawing.new("Square")
+        healthBar.Thickness = 2
+        healthBar.Filled = true
+
+        -- Update the box and health bar positions and size every frame
+        game:GetService("RunService").RenderStepped:Connect(function()
+            if character and humanoidRootPart and humanoid and player ~= localPlayer then
+                local rootPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(humanoidRootPart.Position)
+                
+                if onScreen then
+                    local size = Vector3.new(4, 6, 0) * workspace.CurrentCamera.ViewportSize.Y / (rootPos.Z)
+                    box.Size = Vector2.new(size.X, size.Y)
+                    box.Position = Vector2.new(rootPos.X - size.X / 2, rootPos.Y - size.Y / 2)
+                    box.Visible = true
+
+                    -- Health bar settings
+                    local healthPercent = humanoid.Health / humanoid.MaxHealth
+                    healthBar.Size = Vector2.new(5, size.Y * healthPercent)
+                    healthBar.Position = Vector2.new(box.Position.X - 10, box.Position.Y + size.Y * (1 - healthPercent))
+                    healthBar.Color = Color3.new(0, 1, 0) -- Green for health bar
+                    healthBar.Visible = true
+                else
+                    box.Visible = false
+                    healthBar.Visible = false
+                end
+            else
+                box.Visible = false
+                healthBar.Visible = false
+            end
+        end)
+    end
+end
+
+-- Add ESP to all players
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= localPlayer then
+        createBoxWithHealthAndTeamCheck(player)
+    end
+end
+
+-- ESP for new players joining
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        if player ~= localPlayer then
+            createBoxWithHealthAndTeamCheck(player)
+        end
+    end)
+end)
+
