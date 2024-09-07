@@ -199,7 +199,7 @@ local function esp(p,cr)
     text.Outline = true
     text.Color = Color3.new(1,1,1)
     text.Font = 2
-    text.Size = 13
+    text.Size = 18
 
     local c1 
     local c2
