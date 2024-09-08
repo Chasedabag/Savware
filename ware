@@ -4,6 +4,44 @@ local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
+print("Executed")
+    local esplibrary = {
+        enabled = true,
+        maxdistance = 3000,
+        --
+        textfont = 2,
+        textsize = 12,
+        --
+        tweenhealth = false,
+        --
+        friendcheck = false,
+        visiblecheck = false,
+        teamcheck = true,
+        --
+        distance_format = 0.4,
+        distance_measurement = "m",
+        -- BOX/ETC
+        boxes = {["enabled"] = false, ["color"] = Color3.fromRGB(255, 255, 255), ["type"] = "Bounding"},
+        healthbars = {["enabled"] = false},
+        healthtext = {["enabled"] = false},
+        -- TEXT
+        names = {["enabled"] = false, ["displaynames"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
+        distance = {["false"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
+        weapon = {["false"] = true, ["color"] = Color3.fromRGB(255, 255, 255)},
+        --
+        chams = {["false"] = false, ["color"] = Color3.fromRGB(255, 255, 255), ["transparency"] = 0},
+        glow = {["false"] = false, ["color"] = Color3.fromRGB(255, 0, 140), ["transparency"] = 0},
+
+        skeleton = {["skeleton"] = false, ["color"] = Color3.fromRGB(255, 255, 255)}
+
+
+    }
+
+
+
+
+
+
 local Window = Library:CreateWindow({
      Title = 'SavWare',
     Center = true,
@@ -17,533 +55,826 @@ local Tabs = {
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
+
 local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Aimbot')
 local RightGroupBox = Tabs.Main:AddLeftGroupbox('visuals')
-RightGroupBox:AddToggle('Aimbot', {
-    Text = 'Aimbot',
+RightGroupBox:AddToggle('boxes', {
+    Text = 'boxes',
     Default = false, 
     Callback = function(Value)
+        esplibrary.boxes.enabled = Value
     end})
-    local aimbotEnabled = false
-    local aimbotEnabled = false
-    local smoothing = 0.9
-    local Size1 = UDim2.new(0, 100, 0, 100)  -- This sets the size in pixels
-    local aimbotKey = Enum.KeyCode.E 
     
-    local aimbotLine = Drawing.new("Line")
-    aimbotLine.Color = Color3.new(0, 0, 0) 
-    aimbotLine.Thickness = 1
-    aimbotLine.Visible = true
-    
-    local Converted = {
-        ["_ScreenGui"] = Instance.new("ScreenGui"),
-        ["_Frame"] = Instance.new("Frame"),
-        ["_UIStroke"] = Instance.new("UIStroke"),
-        ["_UIGradient"] = Instance.new("UIGradient"),
-        ["_UICorner"] = Instance.new("UICorner"),
-        ["_rotation"] = Instance.new("LocalScript"),
-        ["_mouse"] = Instance.new("LocalScript"),
-        ["_fov"] = Instance.new("LocalScript"),
-    }
-    
-    
-    Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    local existingGui = game:GetService("CoreGui"):FindFirstChild("_ScreenGui")
-    if existingGui then
-        existingGui:Destroy() 
-    end
-    
-    Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
-    
-    Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Converted["_Frame"].BackgroundTransparency = 1
-    Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Converted["_Frame"].BorderSizePixel = 0
-    Converted["_Frame"].AnchorPoint = Vector2.new(0.5, 0.5) 
-    Converted["_Frame"].Position = UDim2.new(0.5, 0, 0.484, 0)
-    Converted["_Frame"].Size = UDim2.new(0, 0, 0, 0)
-    Converted["_Frame"].Parent = Converted["_ScreenGui"]
-    
-    Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-    Converted["_UIStroke"].Thickness = 2
-    Converted["_UIStroke"].Parent = Converted["_Frame"]
-    
-    Converted["_UIGradient"].Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(0.019999999552965164, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 44, 255))
-    }
-    Converted["_UIGradient"].Parent = Converted["_UIStroke"]
-    
-    Converted["_UICorner"].CornerRadius = UDim.new(1, 0)
-    Converted["_UICorner"].Parent = Converted["_Frame"]
-    
-    
-    local function findClosestTarget()
-        local closestTarget = nil
-        local closestDistance = math.huge
-        local player = game:GetService("Players").LocalPlayer
-        local fovCircleRadius = Converted["_Frame"].Size.X.Offset / 2
-        local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.55) -- Adjusted to match the FOV circle
-    
-        for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
-                -- Team Check
-                if v.Team ~= player.Team then
-                    local head = v.Character.Head
-                    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
-                    if onScreen then
-                        local distance = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
-                        if distance < fovCircleRadius and distance < closestDistance then
-                            closestDistance = distance
-                            closestTarget = head
+    RightGroupBox:AddToggle('healthbar', {
+        Text = 'healthbar',
+        Default = false, 
+        Callback = function(Value)
+            esplibrary.healthbars.enabled = Value
+        end})
+
+        RightGroupBox:AddToggle('healthtext', {
+            Text = 'healthtext',
+            Default = false, 
+            Callback = function(Value)
+                esplibrary.healthtext.enabled = Value
+            end})
+            
+            RightGroupBox:AddToggle('Names', {
+                Text = 'Names',
+                Default = false, 
+                Callback = function(Value)
+                    esplibrary.names.enabled = Value
+                end})
+
+                RightGroupBox:AddToggle('skeleton', {
+                    Text = 'skeleton esp',
+                    Default = false, 
+                    Callback = function(Value)
+                        esplibrary.skeleton.enabled = Value
+                    end})
+
+
+
+
+
+
+
+
+
+                    RightGroupBox:AddToggle('Aimbot', {
+                        Text = 'Aimbot',
+                        Default = false, 
+                        Callback = function(Value)
+                            aimbotEnabled = Value
+                            if aimbotEnabled and not running then
+                                running = true
+                                Aimbot()  -- Start the aimbot when toggled on
+                            elseif not aimbotEnabled then
+                                running = false  -- Stop the loop when toggled off
+                            end
                         end
+                    })
+                    
+                
+                    function Aimbot()
+                        while running do  -- Ensure the loop runs only once
+                            local target = findClosestTarget()
+                            if target then
+                                local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
+                                aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+                                aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
+                    
+                                if aimbotEnabled then
+                                    aimAtTarget(target)
+                                end
+                            else
+                                aimbotLine.To = aimbotLine.From
+                            end
+                            wait()  -- Allow other processes to run
+                        end
+                    end
+                    
+                    -- Input handling to toggle aimbot via the key
+                    game:GetService("UserInputService").InputBegan:Connect(function(input)
+                        if input.KeyCode == aimbotKey then
+                            aimbotEnabled = true
+                        end
+                    end)
+                    
+                    game:GetService("UserInputService").InputEnded:Connect(function(input)
+                        if input.KeyCode == aimbotKey then
+                            aimbotEnabled = false
+                        end
+                    end)            
+local aimbotEnabled = false
+local smoothing = 0.9
+local Size1 = UDim2.new(0, 100, 0, 100)  -- This sets the size in pixels
+local aimbotKey = Enum.KeyCode.E
+
+local aimbotLine = Drawing.new("Line")
+aimbotLine.Color = Color3.new(0, 0, 0) 
+aimbotLine.Thickness = 1
+aimbotLine.Visible = true
+
+local Converted = {
+	["_ScreenGui"] = Instance.new("ScreenGui"),
+	["_Frame"] = Instance.new("Frame"),
+	["_UIStroke"] = Instance.new("UIStroke"),
+	["_UIGradient"] = Instance.new("UIGradient"),
+	["_UICorner"] = Instance.new("UICorner"),
+	["_rotation"] = Instance.new("LocalScript"),
+	["_mouse"] = Instance.new("LocalScript"),
+	["_fov"] = Instance.new("LocalScript"),
+}
+
+
+Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local existingGui = game:GetService("CoreGui"):FindFirstChild("_ScreenGui")
+if existingGui then
+    existingGui:Destroy() 
+end
+
+Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
+
+Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_Frame"].BackgroundTransparency = 1
+Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+Converted["_Frame"].BorderSizePixel = 0
+Converted["_Frame"].AnchorPoint = Vector2.new(0.5, 0.5) 
+Converted["_Frame"].Position = UDim2.new(0.5, 0, 0.484, 0)
+Converted["_Frame"].Size = UDim2.new(0, 0, 0, 0)
+Converted["_Frame"].Parent = Converted["_ScreenGui"]
+
+Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
+Converted["_UIStroke"].Thickness = 2
+Converted["_UIStroke"].Parent = Converted["_Frame"]
+
+Converted["_UIGradient"].Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.019999999552965164, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 44, 255))
+}
+Converted["_UIGradient"].Parent = Converted["_UIStroke"]
+
+Converted["_UICorner"].CornerRadius = UDim.new(1, 0)
+Converted["_UICorner"].Parent = Converted["_Frame"]
+
+
+local function findClosestTarget()
+    local closestTarget = nil
+    local closestDistance = math.huge
+    local player = game:GetService("Players").LocalPlayer
+    local fovCircleRadius = Converted["_Frame"].Size.X.Offset / 2
+    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.55) -- Adjusted to match the FOV circle
+
+    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+            -- Team Check
+            if v.Team ~= player.Team then
+                local head = v.Character.Head
+                local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
+                if onScreen then
+                    local distance = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                    if distance < fovCircleRadius and distance < closestDistance then
+                        closestDistance = distance
+                        closestTarget = head
                     end
                 end
             end
         end
-    
-        return closestTarget
     end
+
+    return closestTarget
+end
+
+
+
+
+
+local function aimAtTarget(target)
+    local player = game:GetService("Players").LocalPlayer
+    local mouse = player:GetMouse()
+    -- Adjust the mouse to aim at the target (target is assumed to be the head of the character)
+    mouse.Hit = target.CFrame
+end
+
+
+local function aimAtTarget(target)
+    local player = game:GetService("Players").LocalPlayer
+    local mouse = player:GetMouse()
+
+    -- Get the 2D screen position of the target
+    local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
+    local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
+
+    local delta = Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter
     
+
+    local distance = (workspace.CurrentCamera.CFrame.Position - target.Position).Magnitude
+    local correctionFactor = math.clamp(distance / 50, 0.1, 1) 
     
-    
-    
-    
-    local function aimAtTarget(target)
-        local player = game:GetService("Players").LocalPlayer
-        local mouse = player:GetMouse()
-        -- Adjust the mouse to aim at the target (target is assumed to be the head of the character)
-        mouse.Hit = target.CFrame
-    end
-    
-    
-    local function aimAtTarget(target)
-        local player = game:GetService("Players").LocalPlayer
-        local mouse = player:GetMouse()
-    
-        -- Get the 2D screen position of the target
+
+    local newMousePos = delta * correctionFactor * smoothing
+
+    mousemoverel(newMousePos.X, newMousePos.Y)
+
+    aimbotLine.From = screenCenter
+    aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
+end
+
+-- Aimbot logic
+game:GetService("RunService").RenderStepped:Connect(function()
+    local target = findClosestTarget()
+    if target then
+        -- Update the line position even if the aimbot is not active
         local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
-        local screenCenter = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
-    
-        local delta = Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter
-        
-    
-        local distance = (workspace.CurrentCamera.CFrame.Position - target.Position).Magnitude
-        local correctionFactor = math.clamp(distance / 50, 0.1, 1) 
-        
-    
-        local newMousePos = delta * correctionFactor * smoothing
-    
-        mousemoverel(newMousePos.X, newMousePos.Y)
-    
-        aimbotLine.From = screenCenter
+        aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
         aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
-    end
-    
-    -- Aimbot logic
-    game:GetService("RunService").RenderStepped:Connect(function()
-        local target = findClosestTarget()
-        if target then
-            -- Update the line position even if the aimbot is not active
-            local targetScreenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position)
-            aimbotLine.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y * 0.5)
-            aimbotLine.To = Vector2.new(targetScreenPos.X, targetScreenPos.Y)
-    
-            if aimbotEnabled then
-                aimAtTarget(target)
-            end
-        else
-            aimbotLine.To = aimbotLine.From
+
+        if aimbotEnabled then
+            aimAtTarget(target)
         end
-    end)
-    
-    game:GetService("UserInputService").InputBegan:Connect(function(input)
-        if input.KeyCode == aimbotKey then
-            aimbotEnabled = true
-        end
-    end)
-    
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.KeyCode == aimbotKey then
-            aimbotEnabled = false
-        end
-    end)
-    
-    local function createRotationScript()
-        local script = Instance.new("LocalScript")
-        script.Name = "rotation"
-        script.Parent = Converted["_Frame"]
-    
-        local frame = script.Parent
-        local rotationSpeed = 10
-    
-        local function rotateFrame()
-            while true do
-                frame.Rotation = frame.Rotation + rotationSpeed
-                if frame.Rotation >= 360 then
-                    frame.Rotation = 0
-                end
-                wait(0.01)
-            end
-        end
-    
-        rotateFrame()
-    end
-    
-    local function createFOVAdjustScript()
-        local script = Instance.new("LocalScript")
-        script.Name = "fov"
-        script.Parent = Converted["_Frame"]
-    
-        local frame = script.Parent
-        local camera = workspace.CurrentCamera
-    
-        local function updateFrameSize()
-            local fov = camera.FieldOfView
-            local scaleFactorX = Size1.X.Offset / fov  -- Extract X offset for scaling
-            local scaleFactorY = Size1.Y.Offset / fov  -- Extract Y offset for scaling
-            local newSize = UDim2.new(0, 200 * scaleFactorX, 0, 200 * scaleFactorY)
-            frame.Size = newSize
-        end
-    
-        updateFrameSize()
-        camera:GetPropertyChangedSignal("FieldOfView"):Connect(updateFrameSize)
-    end
-    
-    
-    coroutine.wrap(createRotationScript)()
-    coroutine.wrap(createFOVAdjustScript)()
-
-
-RightGroupBox:AddToggle('MyToggle', {
-    Text = 'Name esp',
-    Default = false, 
-    Callback = function(Value)
-    end})
-    local c = workspace.CurrentCamera
-    local ps = game:GetService("Players")
-    local lp = ps.LocalPlayer
-    local rs = game:GetService("RunService")
-    
-    local playerESP = {}
-    
-    -- Function to create and update ESP
-    local function esp(p, cr)
-        -- Check if the player is on the same team as the local player
-        if p.Team == lp.Team then
-            return
-        end
-    
-        local h = cr:WaitForChild("Humanoid")
-        local hrp = cr:WaitForChild("Head")
-    
-        local text = Drawing.new("Text")
-        text.Visible = true
-        text.Center = true
-        text.Outline = true
-        text.Font = 2
-        text.Color = Color3.fromRGB(255, 255, 255)
-        text.Size = 13
-    
-        local c1
-        local c2
-        local c3
-    
-        local function dc()
-            text.Visible = false
-            text:Remove()
-            if c1 then
-                c1:Disconnect()
-                c1 = nil
-            end
-            if c2 then
-                c2:Disconnect()
-                c2 = nil
-            end
-            if c3 then
-                c3:Disconnect()
-                c3 = nil
-            end
-            playerESP[p] = nil
-        end
-    
-        c2 = cr.AncestryChanged:Connect(function(_, parent)
-            if not parent then
-                dc()
-            end
-        end)
-    
-        c3 = h.HealthChanged:Connect(function(v)
-            if (v <= 0) or (h:GetState() == Enum.HumanoidStateType.Dead) then
-                dc()
-            end
-        end)
-    
-        c1 = rs.RenderStepped:Connect(function()
-            local hrp_pos, hrp_onscreen = c:WorldToViewportPoint(hrp.Position)
-            if hrp_onscreen then
-                text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - 35) -- Adjust Y position to move the nametag higher
-                text.Text = p.Name
-                text.Visible = true
-            else
-                text.Visible = false
-            end
-        end)
-    
-        -- Track ESP in the playerESP table
-        playerESP[p] = text
-    end
-    
-    -- Function to remove ESP for all players on the local player's team
-    local function removeTeamESP()
-        for p, esp in pairs(playerESP) do
-            if p.Team == lp.Team then
-                esp.Visible = false
-                esp:Remove()
-                playerESP[p] = nil
-            end
-        end
-    end
-    
-    -- Function to handle player addition
-    local function p_added(p)
-        if p.Character then
-            esp(p, p.Character)
-        end
-        p.CharacterAdded:Connect(function(cr)
-            esp(p, cr)
-        end)
-    end
-    
-    -- Function to handle team change
-    local function onTeamChanged()
-        -- Remove ESP for players on the local player's team
-        removeTeamESP()
-    
-        -- Update ESP for all players
-        for i, p in next, ps:GetPlayers() do
-            if p ~= lp then
-                p_added(p)
-            end
-        end
-    end
-    
-    -- Connect to team change
-    lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
-    
-    -- Connect to player joining and leaving
-    ps.PlayerAdded:Connect(p_added)
-    ps.PlayerRemoving:Connect(function(p)
-        if playerESP[p] then
-            playerESP[p].Visible = false
-            playerESP[p]:Remove()
-            playerESP[p] = nil
-        end
-    end)
-    
-    -- Initial ESP update
-    for i, p in next, ps:GetPlayers() do
-        if p ~= lp then
-            p_added(p)
-        end
-    end
-    
-
-
-
-RightGroupBox:AddToggle('MyToggle', {
-    Text = 'Weapon esp',
-    Default = false, 
-    Callback = function(Value)
-    end})
-    local c = workspace.CurrentCamera
-local ps = game:GetService("Players")
-local lp = ps.LocalPlayer
-local rs = game:GetService("RunService")
-
--- Table to track ESP objects
-local playerESP = {}
-
--- Function to get the real tool name
-local function ftool(cr)
-    for _, b in ipairs(cr:GetChildren()) do 
-        if b.Name == 'Gun' then
-            return b:GetAttribute("Real")
-        end
-    end
-    return 'empty'
-end
-
--- Function to create and update ESP
-local function esp(p, cr)
-    if p == lp then return end
-
-    local h = cr:WaitForChild("Humanoid")
-    local hrp = cr:WaitForChild("HumanoidRootPart")
-
-    local text = Drawing.new('Text')
-    text.Visible = true
-    text.Center = true
-    text.Outline = true
-    text.Color = Color3.new(1, 1, 1)
-    text.Font = 2
-    text.Size = 13
-
-    local c1, c2, c3
-
-    local function dc()
-        if text then
-            text.Visible = false
-            text:Remove()
-        end
-        if c1 then c1:Disconnect() end
-        if c2 then c2:Disconnect() end
-        if c3 then c3:Disconnect() end
-        playerESP[p] = nil -- Remove from tracking table
-        print("ESP removed for:", p.Name)
-    end
-
-    -- Disconnect and remove ESP when character dies or is removed
-    c2 = cr.AncestryChanged:Connect(function(_, parent)
-        if not parent then
-            print("Character removed:", p.Name)
-            dc()
-        end
-    end)
-
-    c3 = h.HealthChanged:Connect(function(v)
-        if v <= 0 then
-            print("Player dead:", p.Name)
-            dc()
-        end
-    end)
-
-    -- Update ESP position on every frame
-    c1 = rs.Heartbeat:Connect(function()
-        if cr.Parent == nil or h.Health <= 0 then
-            dc()
-            return
-        end
-        local hrp_pos, hrp_os = c:WorldToViewportPoint(hrp.Position)
-        if hrp_os then
-            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y - -35)
-            text.Text = '[ ' .. tostring(ftool(cr)) .. ' ]'
-            text.Visible = true
-        else
-            text.Visible = false
-        end
-    end)
-
-    -- Track ESP in the playerESP table
-    playerESP[p] = text
-    print("ESP created for:", p.Name)
-end
-
--- Function to handle player addition
-local function p_added(p)
-    p.CharacterAdded:Connect(function(cr)
-        -- Clear existing ESP if any (in case of respawn)
-        if playerESP[p] then
-            playerESP[p].Visible = false
-            playerESP[p]:Remove()
-            playerESP[p] = nil
-        end
-
-        -- Add ESP for new character if on a different team
-        if p.Team ~= lp.Team then
-            esp(p, cr)
-        end
-    end)
-
-    -- Handle already existing character (in case player joined mid-game)
-    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-        if p.Team ~= lp.Team then
-            esp(p, p.Character)
-        end
-    end
-end
-
--- Function to handle player removal
-local function p_removed(p)
-    if playerESP[p] then
-        print("Removing ESP for player:", p.Name)
-        playerESP[p].Visible = false
-        playerESP[p]:Remove()
-        playerESP[p] = nil
-    end
-end
-
--- Function to update ESP for all players
-local function updateAllESP()
-    for _, p in ipairs(ps:GetPlayers()) do
-        if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            if p.Team ~= lp.Team then
-                if not playerESP[p] then
-                    esp(p, p.Character)
-                end
-            else
-                if playerESP[p] then
-                    playerESP[p].Visible = false
-                    playerESP[p]:Remove()
-                    playerESP[p] = nil
-                end
-            end
-        end
-    end
-end
-
--- Function to reset the ESP system
-local function resetESP()
-    -- Remove all ESP objects
-    for p, espObj in pairs(playerESP) do
-        if espObj then
-            espObj:Remove()
-            playerESP[p] = nil
-        end
-    end
-    -- Recreate ESP for all players
-    updateAllESP()
-end
-
--- Function to handle game mode reset
-local function onGameModeReset()
-    print("Game mode has reset, resetting ESP...")
-    resetESP()
-end
-
--- Function to handle team change
-local function onTeamChanged()
-    -- Clear ESP for players on the same team
-    for p, esp in pairs(playerESP) do
-        if p.Team == lp.Team then
-            print("Removing ESP for same team player:", p.Name)
-            esp.Visible = false
-            esp:Remove()
-            playerESP[p] = nil
-        end
-    end
-    
-    -- Update ESP for all players
-    updateAllESP()
-end
-
--- Detect when the entire game or environment resets (for game mode switching)
-workspace.ChildRemoved:Connect(function(child)
-    if child:IsA("Camera") then
-        onGameModeReset()
+    else
+        aimbotLine.To = aimbotLine.From
     end
 end)
 
--- Connect to team change
-lp:GetPropertyChangedSignal("Team"):Connect(onTeamChanged)
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == aimbotKey then
+        aimbotEnabled = true
+    end
+end)
 
--- Connect to player joining and leaving
-ps.PlayerAdded:Connect(p_added)
-ps.PlayerRemoving:Connect(p_removed)
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.KeyCode == aimbotKey then
+        aimbotEnabled = false
+    end
+end)
 
--- Initial ESP update
-updateAllESP()
+local function createRotationScript()
+	local script = Instance.new("LocalScript")
+	script.Name = "rotation"
+	script.Parent = Converted["_Frame"]
 
-  
+	local frame = script.Parent
+	local rotationSpeed = 10
+
+	local function rotateFrame()
+		while true do
+			frame.Rotation = frame.Rotation + rotationSpeed
+			if frame.Rotation >= 360 then
+				frame.Rotation = 0
+			end
+			wait(0.01)
+		end
+	end
+
+	rotateFrame()
+end
+
+local function createFOVAdjustScript()
+    local script = Instance.new("LocalScript")
+    script.Name = "fov"
+    script.Parent = Converted["_Frame"]
+
+    local frame = script.Parent
+    local camera = workspace.CurrentCamera
+
+    local function updateFrameSize()
+        local fov = camera.FieldOfView
+        local scaleFactorX = Size1.X.Offset / fov  -- Extract X offset for scaling
+        local scaleFactorY = Size1.Y.Offset / fov  -- Extract Y offset for scaling
+        local newSize = UDim2.new(0, 200 * scaleFactorX, 0, 200 * scaleFactorY)
+        frame.Size = newSize
+    end
+
+    updateFrameSize()
+    camera:GetPropertyChangedSignal("FieldOfView"):Connect(updateFrameSize)
+end
+
+
+coroutine.wrap(createRotationScript)()
+coroutine.wrap(createFOVAdjustScript)()
+
+
+local aimbotEnabled = false
+local running = false
+
+
+
+
+
+
+    local utility = {}
+    local connections = {}
+    local drawings = {}
+    local signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/razorwarecc/core-drawing/main/signal3"))()
+    local new, uis, runservice, players, localplayer, wtvp, camera, headoff, legoff = Drawing.new, game:GetService("UserInputService"), game:GetService("RunService"),  game:GetService("Players"), game:GetService("Players").LocalPlayer, workspace.CurrentCamera.WorldToViewportPoint, workspace.CurrentCamera,  Vector3.new(0, 0.3, 0), Vector3.new(0, 6, 0)
+    esplibrary.unload = signal.new()
+    function utility:draw(name, props)
+        local drawing = new(name)
+        for a, b in pairs(props) do
+            drawing[a] = b
+        end
+        return drawing
+    end
+    function utility:instance(name, props)
+        local instance = Instance.new(name)
+        for a, b in pairs(props) do
+            instance[a] = b
+        end
+        return instance
+    end
+    function utility:distance(part1, part2)
+        if part1 and part2 then
+            local distance = (part1.Position - part2.Position).Magnitude
+            return distance * esplibrary.distance_format
+        end
+        return 0
+    end
+    function utility:connection(signal, func)
+        local created = signal:Connect(func)
+        table.insert(connections, created)
+        return created
+    end
+    function utility:friendcheck(userid)
+        return localplayer:IsFriendsWith(userid) 
+    end
+    function utility:cham(character)
+        return utility:instance("Highlight", {Parent = character, FillTransparency = 1, OutlineTransparency = 1})
+    end
+    function utility:checkchar(player)
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Head") then
+            return true
+        end
+        return false
+    end
+    function utility:gettool(character)
+        if character:FindFirstChild("EquippedTool") then
+            return character:FindFirstChild("EquippedTool").Value
+        end
+        return "None"
+    end
+    function utility:gethrp(character)
+        return character:FindFirstChild("HumanoidRootPart")
+    end
+    function utility:gethead(character)
+        return character:FindFirstChild("Head")
+    end
+    function utility:remove(player)
+        for a, b in pairs(drawings) do
+            if b.player == player then
+                for c, d in pairs(b) do
+                    if isrenderobj(d) then
+                        d:Remove()
+                    elseif typeof(d) == "Instance" and d:IsA("Highlight") then
+                        d:Remove()
+                    end
+                end
+                table.remove(drawings, a)
+                break
+            end
+        end
+    end
+    function utility:espexists(player)
+        for a, b in pairs(drawings) do
+            if b.player == player then
+                return true
+            end
+        end
+        return false
+    end
+    function utility:teamcheck(player)
+        return player.Team == localplayer.Team
+    end
+    function utility:create(player)
+        --
+        if not utility:checkchar(player) then
+            return
+        end
+        --
+        if utility:espexists(player) then
+            return
+        end
+        if esplibrary.teamcheck and utility:teamcheck(player) then
+            return
+        end
+        --
+        local tbl = {}
+        ----- DRAWINGS
+        -- text first since easiest
+        tbl.player = player
+        --
+        tbl.names = utility:draw("Text", {Color = esplibrary.names.color, Center = true, Visible = false, Size = esplibrary.textsize, Font = esplibrary.textfont, Outline = true, ZIndex = 2, OutlineColor = Color3.new(0, 0, 0)})
+        tbl.distance = utility:draw("Text", {Color = esplibrary.distance.color, Center = true, Visible = false, Size = esplibrary.textsize, Font = esplibrary.textfont, Outline = true, ZIndex = 2, OutlineColor = Color3.new(0, 0, 0)})
+        tbl.weapon = utility:draw("Text", {Color = esplibrary.weapon.color, Center = true, Visible = false, Size = esplibrary.textsize, Font = esplibrary.textfont, Outline = true, ZIndex = 2, OutlineColor = Color3.new(0, 0, 0)})
+        --------
+        tbl.boxoutline = utility:draw("Square", {Color = Color3.fromRGB(0, 0, 0), Visible = false, Thickness = 2})
+        tbl.box = utility:draw("Square", {Color = esplibrary.boxes.color, Visible = false, ZIndex = 2})
+        for i = 1, 12 do 
+            local drawingname = "3dbox_"..i
+            tbl[drawingname] = utility:draw("Line", {Visible = false, Color = Color3.fromRGB(255, 255, 255)})
+        end
+        --------
+        tbl.healthbaroutline = utility:draw("Line", {Color = Color3.fromRGB(0, 0, 0), Visible = false, Thickness = 4, ZIndex = 1})
+        tbl.healthbar = utility:draw("Line", {Color = Color3.fromRGB(0, 255, 0), Visible = false, ZIndex = 2})
+        tbl.healthtext = utility:draw("Text", {Color = Color3.fromRGB(0, 255, 0), Center = true, Visible = false, Size = esplibrary.textsize, Font = esplibrary.textfont, Outline = true, OutlineColor = Color3.new(0, 0, 0)})
+        --------
+        tbl.highlight = utility:cham(tbl.player.Character)
+        --------
+        tbl["r15headline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15torsoline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rneckshoulderline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rshoulderline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rupperarmline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rlowerarmline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15lshoulderline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15lneckshoulderline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15lupperarmline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15llowerarmline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rhipline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rupperlegline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15rlowerlegline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15lhipline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15lupperlegline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        tbl["r15llowerlegline"] = utility:draw("Line", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        --------
+        --tbl.weaponimage = utility:draw("Image", {Color = Color3.fromRGB(255, 255, 255), Visible = false})
+        --------
+        table.insert(drawings, tbl)
+    end
+
+    local mainconnection = utility:connection(runservice.RenderStepped, function()
+        camera = workspace.CurrentCamera
+        for index, drawing in pairs(drawings) do
+            local player = drawing.player
+            if utility:checkchar(player) and utility:checkchar(localplayer) then
+                if utility:teamcheck(player) and esplibrary.teamcheck then
+                    continue
+                end
+
+                local isvalid = true
+                local character = player.Character
+
+                local head, hrp = utility:gethead(character), utility:gethrp(character)
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                --
+                if esplibrary.friendcheck and utility:friendcheck(player.UserId) then
+                    utility:remove(player)
+                end
+                if utility:distance(hrp, utility:gethrp(localplayer.Character)) > esplibrary.maxdistance then
+                    continue
+                end
+                
+                local wts, onscreen = wtvp(camera, hrp.Position)
+                local boxheadwts, _ = wtvp(camera, head.Position + Vector3.new(0, 0.5, 0))
+                local boxlegwts, _ = wtvp(camera, head.Position - Vector3.new(0, 5.1, 0))
+                local threedboxtopcenter
+                local threedboxbottomcenter
+                local threedmiddleleft
+
+                local headwts, _ = wtvp(camera, character.Head.Position)
+                local neckwts, _0
+                local hrpwts, _ = wtvp(camera, character.HumanoidRootPart.Position)
+                local waistwts, _1
+                local lshoulderarmwts, _2
+                local lelbowwts, _3
+                local llowerarmwts, _4
+                local rshoulderarmwts, _5
+                local relbowwts, _6
+                local rlowerarmwts, _7
+
+                local rhipwts, _8
+                local rupperlegwts, _9
+                local rlowerlegwts, _10
+
+                local lhipwts, _11
+                local lupperlegwts, _12
+                local llowerlegwts, _13
+
+                if character:FindFirstChild("LeftLowerArm") then
+                    neckwts, _0 = wtvp(camera, character.Head.NeckRigAttachment.WorldPosition)
+                    waistwts, _1 = wtvp(camera, character:FindFirstChild("LowerTorso").RootRigAttachment.WorldPosition)
+                    lshoulderarmwts, _2 = wtvp(camera, character:FindFirstChild("LeftUpperArm").LeftShoulderAttachment.WorldPosition)
+                    lelbowwts, _3 = wtvp(camera, character:FindFirstChild("LeftUpperArm").LeftElbowRigAttachment.WorldPosition)
+                    llowerarmwts, _4 = wtvp(camera, character:FindFirstChild("LeftLowerArm").LeftWristRigAttachment.WorldPosition)
+                    rshoulderarmwts, _5 = wtvp(camera, character:FindFirstChild("RightUpperArm").RightShoulderAttachment.WorldPosition)
+                    relbowwts, _6 = wtvp(camera, character:FindFirstChild("RightUpperArm").RightElbowRigAttachment.WorldPosition)
+                    rlowerarmwts, _7 = wtvp(camera, character:FindFirstChild("RightLowerArm").RightWristRigAttachment.WorldPosition)
+                    rhipwts, _8 = wtvp(camera, character:FindFirstChild("RightUpperLeg").RightHipRigAttachment.WorldPosition)
+                    rupperlegwts, _9 = wtvp(camera, character:FindFirstChild("RightUpperLeg").RightKneeRigAttachment.WorldPosition)
+                    rlowerlegwts, _10 = wtvp(camera, character:FindFirstChild("RightLowerLeg").RightAnkleRigAttachment.WorldPosition)
+                    lhipwts, _8 = wtvp(camera, character:FindFirstChild("LeftUpperLeg").LeftHipRigAttachment.WorldPosition)
+                    lupperlegwts, _9 = wtvp(camera, character:FindFirstChild("LeftUpperLeg").LeftKneeRigAttachment.WorldPosition)
+                    llowerlegwts, _10 = wtvp(camera, character:FindFirstChild("LeftLowerLeg").LeftAnkleRigAttachment.WorldPosition)
+                end
+                if waistwts then
+                    setrenderproperty(drawing["r15headline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15torsoline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15rneckshoulderline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15rlowerarmline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15rupperarmline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15lneckshoulderline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15lupperarmline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15llowerarmline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15lupperlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15llowerlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15rupperlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15rlowerlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15rupperlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15rlowerlegline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    --
+                    setrenderproperty(drawing["r15lhipline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+                    setrenderproperty(drawing["r15rhipline"], "Visible", (onscreen and esplibrary.enabled and esplibrary.skeleton.enabled and isvalid))
+
+                    --
+                    setrenderproperty(drawing["r15headline"], "From", Vector2.new(headwts.X, headwts.Y))
+                    setrenderproperty(drawing["r15headline"], "To", Vector2.new(neckwts.X, neckwts.Y))
+                    --
+                    setrenderproperty(drawing["r15torsoline"], "From", Vector2.new(neckwts.X, neckwts.Y))
+                    setrenderproperty(drawing["r15torsoline"], "To", Vector2.new(waistwts.X, waistwts.Y))
+                    --
+                    setrenderproperty(drawing["r15lshoulderline"], "From", Vector2.new(neckwts.X, neckwts.Y))
+                    setrenderproperty(drawing["r15lshoulderline"], "To", Vector2.new(lshoulderarmwts.X, lshoulderarmwts.Y))
+                    --
+                    setrenderproperty(drawing["r15lneckshoulderline"], "From", Vector2.new(neckwts.X, neckwts.Y))
+                    setrenderproperty(drawing["r15lneckshoulderline"], "To", Vector2.new(lshoulderarmwts.X, lshoulderarmwts.Y))
+                    --
+                    
+                    setrenderproperty(drawing["r15lupperarmline"], "From", Vector2.new(lshoulderarmwts.X, lshoulderarmwts.Y))
+                    setrenderproperty(drawing["r15lupperarmline"], "To", Vector2.new(lelbowwts.X, lelbowwts.Y))
+                    --
+                    setrenderproperty(drawing["r15llowerarmline"], "From", Vector2.new(lelbowwts.X, lelbowwts.Y))
+                    setrenderproperty(drawing["r15llowerarmline"], "To", Vector2.new(llowerarmwts.X, llowerarmwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rshoulderline"], "From", Vector2.new(neckwts.X, neckwts.Y))
+                    setrenderproperty(drawing["r15rshoulderline"], "To", Vector2.new(lshoulderarmwts.X, lshoulderarmwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rneckshoulderline"], "From", Vector2.new(neckwts.X, neckwts.Y))
+                    setrenderproperty(drawing["r15rneckshoulderline"], "To", Vector2.new(rshoulderarmwts.X, rshoulderarmwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rupperarmline"], "From", Vector2.new(rshoulderarmwts.X, rshoulderarmwts.Y))
+                    setrenderproperty(drawing["r15rupperarmline"], "To", Vector2.new(relbowwts.X, relbowwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rlowerarmline"], "From", Vector2.new(relbowwts.X, relbowwts.Y))
+                    setrenderproperty(drawing["r15rlowerarmline"], "To", Vector2.new(rlowerarmwts.X, rlowerarmwts.Y))
+                    --
+                    setrenderproperty(drawing["r15lhipline"], "From", Vector2.new(waistwts.X, waistwts.Y))
+                    setrenderproperty(drawing["r15lhipline"], "To", Vector2.new(lhipwts.X, lhipwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rhipline"], "From", Vector2.new(waistwts.X, waistwts.Y))
+                    setrenderproperty(drawing["r15rhipline"], "To", Vector2.new(rhipwts.X, rhipwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rupperlegline"], "From", Vector2.new(rhipwts.X, rhipwts.Y))
+                    setrenderproperty(drawing["r15rupperlegline"], "To", Vector2.new(rupperlegwts.X, rupperlegwts.Y))
+                    --
+                    setrenderproperty(drawing["r15rlowerlegline"], "From", Vector2.new(rupperlegwts.X, rupperlegwts.Y))
+                    setrenderproperty(drawing["r15rlowerlegline"], "To", Vector2.new(rlowerlegwts.X, rlowerlegwts.Y))
+                    --
+                    setrenderproperty(drawing["r15lhipline"], "From", Vector2.new(waistwts.X, waistwts.Y))
+                    setrenderproperty(drawing["r15lhipline"], "To", Vector2.new(lhipwts.X, lhipwts.Y))
+                    --
+                    setrenderproperty(drawing["r15lupperlegline"], "From", Vector2.new(lhipwts.X, lhipwts.Y))
+                    setrenderproperty(drawing["r15lupperlegline"], "To", Vector2.new(lupperlegwts.X, lupperlegwts.Y))
+                    --
+                    setrenderproperty(drawing["r15llowerlegline"], "From", Vector2.new(lupperlegwts.X, lupperlegwts.Y))
+                    setrenderproperty(drawing["r15llowerlegline"], "To", Vector2.new(llowerlegwts.X, llowerlegwts.Y))
+
+                end
+                -- BOXES
+                if esplibrary.boxes.type == "Bounding" then
+                    for i = 1, 12 do
+                        local name = "3dbox_"..i
+                        setrenderproperty(drawing[name], "Visible", false)
+                    end
+
+                    setrenderproperty(drawing.box, "Visible", (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid))
+                    setrenderproperty(drawing.box, "Position", Vector2.new(math.floor(wts.X) - math.floor(drawing.box.Size.X) / 2, math.floor(wts.Y) - math.floor(drawing.box.Size.Y) / 1.6))
+                    setrenderproperty(drawing.box, "Size", Vector2.new(2222 / math.floor(wts.Z), math.floor(boxheadwts.Y) - math.floor(boxlegwts.Y))) 
+                    setrenderproperty(drawing.box, "Color", esplibrary.boxes.color)
+                    --
+                    setrenderproperty(drawing.boxoutline, "Visible", drawing.box.Visible)
+                    setrenderproperty(drawing.boxoutline, "Size", Vector2.new(drawing.box.Size.X + 2, drawing.box.Size.Y + 2))
+                    setrenderproperty(drawing.boxoutline, "Position", Vector2.new(drawing.box.Position.X - 1, drawing.box.Position.Y - 1))
+                elseif esplibrary.boxes.type == "3D" then
+                    setrenderproperty(drawing.box, "Visible", false)
+                    setrenderproperty(drawing.boxoutline, "Visible", false)
+                    local headwts1, _ = wtvp(camera, Vector3.new(hrp.Position.X + headoff.X - 2, hrp.Position.Y + headoff.Y, hrp.Position.Z + headoff.Z + 2))
+                    local legwts1, _ = wtvp(camera, Vector3.new(hrp.Position.X - legoff.X - 2, hrp.Position.Y - legoff.Y, hrp.Position.Z - legoff.Z + 2))
+            
+                    local headwts2, _ = wtvp(camera, Vector3.new(hrp.Position.X + headoff.X - 2, hrp.Position.Y + headoff.Y, hrp.Position.Z + headoff.Z - 2))
+                    local legwts2, _ = wtvp(camera, Vector3.new(hrp.Position.X - legoff.X - 2, hrp.Position.Y - legoff.Y, hrp.Position.Z - legoff.Z - 2))
+            
+                    local headwts3, _ = wtvp(camera, Vector3.new(hrp.Position.X + headoff.X + 2, hrp.Position.Y + headoff.Y, hrp.Position.Z - headoff.Z - 2))
+                    local legwts3, _ = wtvp(camera, Vector3.new(hrp.Position.X - legoff.X + 2, hrp.Position.Y - legoff.Y, hrp.Position.Z - legoff.Z - 2))
+            
+                    local headwts4, _ = wtvp(camera, Vector3.new(hrp.Position.X + headoff.X + 2, hrp.Position.Y + headoff.Y, hrp.Position.Z - headoff.Z + 2))
+                    local legwts4, _ = wtvp(camera, Vector3.new(hrp.Position.X - legoff.X + 2, hrp.Position.Y - legoff.Y, hrp.Position.Z - legoff.Z + 2))
+            
+                    threedboxtopcenter = Vector2.new(
+                        (headwts1.X + headwts2.X + headwts3.X + headwts4.X) / 2,
+                        (headwts1.Y + headwts2.Y + headwts3.Y + headwts4.Y) / 2
+                    )
+                    threedboxbottomcenter = Vector2.new(
+                        (legwts1.X + legwts2.X + legwts3.X + legwts4.X) / 2,
+                        (legwts1.Y + legwts2.Y + legwts3.Y + legwts4.Y) / 2
+                    )
+                    threedmiddleleft = Vector2.new(
+                        (headwts1.X + headwts4.X + legwts1.X + legwts4.X) / 2,
+                        (headwts1.Y + headwts4.Y + legwts1.Y + legwts4.Y) / 2
+                    )
+
+                    drawing["3dbox_1"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_1"].Color = esplibrary.boxes.color
+                    drawing["3dbox_1"].From = Vector2.new(headwts1.X, headwts1.Y)
+                    drawing["3dbox_1"].To = Vector2.new(legwts1.X, legwts1.Y)
+                    
+                    drawing["3dbox_2"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_2"].Color = esplibrary.boxes.color
+                    drawing["3dbox_2"].From = Vector2.new(headwts2.X, headwts2.Y)
+                    drawing["3dbox_2"].To = Vector2.new(legwts2.X, legwts2.Y)
+            
+                    drawing["3dbox_3"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_3"].Color = esplibrary.boxes.color
+                    drawing["3dbox_3"].From = Vector2.new(headwts3.X, headwts3.Y)
+                    drawing["3dbox_3"].To = Vector2.new(legwts3.X, legwts3.Y)
+            
+                    drawing["3dbox_4"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_4"].Color = esplibrary.boxes.color
+                    drawing["3dbox_4"].From = Vector2.new(headwts4.X, headwts4.Y)
+                    drawing["3dbox_4"].To = Vector2.new(legwts4.X, legwts4.Y)
+                    
+                    drawing["3dbox_5"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_5"].Color = esplibrary.boxes.color
+                    drawing["3dbox_5"].From = Vector2.new(headwts1.X, headwts1.Y)
+                    drawing["3dbox_5"].To = Vector2.new(headwts2.X, headwts2.Y)
+            
+                    drawing["3dbox_6"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_6"].Color = esplibrary.boxes.color
+                    drawing["3dbox_6"].From = Vector2.new(headwts2.X, headwts2.Y)
+                    drawing["3dbox_6"].To = Vector2.new(headwts3.X, headwts3.Y)
+            
+                    drawing["3dbox_7"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_7"].Color = esplibrary.boxes.color
+                    drawing["3dbox_7"].From = Vector2.new(headwts3.X, headwts3.Y)
+                    drawing["3dbox_7"].To = Vector2.new(headwts4.X, headwts4.Y)
+            
+                    drawing["3dbox_8"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_8"].Color = esplibrary.boxes.color
+                    drawing["3dbox_8"].From = Vector2.new(headwts1.X, headwts1.Y)
+                    drawing["3dbox_8"].To = Vector2.new(headwts4.X, headwts4.Y)
+            
+                    drawing["3dbox_9"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_9"].Color = esplibrary.boxes.color
+                    drawing["3dbox_9"].From = Vector2.new(legwts1.X, legwts1.Y)
+                    drawing["3dbox_9"].To = Vector2.new(legwts2.X, legwts2.Y)
+            
+                    drawing["3dbox_10"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_10"].Color = esplibrary.boxes.color
+                    drawing["3dbox_10"].From = Vector2.new(legwts2.X, legwts2.Y)
+                    drawing["3dbox_10"].To = Vector2.new(legwts3.X, legwts3.Y)
+            
+                    drawing["3dbox_11"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_11"].Color = esplibrary.boxes.color
+                    drawing["3dbox_11"].From = Vector2.new(legwts3.X, legwts3.Y)
+                    drawing["3dbox_11"].To = Vector2.new(legwts4.X, legwts4.Y)
+            
+                    drawing["3dbox_12"].Visible = (onscreen and esplibrary.enabled and esplibrary.boxes.enabled and isvalid)
+                    drawing["3dbox_12"].Color = esplibrary.boxes.color
+                    drawing["3dbox_12"].From = Vector2.new(legwts1.X, legwts1.Y)
+                    drawing["3dbox_12"].To = Vector2.new(legwts4.X, legwts4.Y)
+                end
+                --------------------------------------------------------------------------------------------------------------
+                -- WEAPON IMAGES
+
+                -- NAMES
+                setrenderproperty(drawing.names, "Visible", (onscreen and esplibrary.enabled and esplibrary.names.enabled and isvalid))
+                setrenderproperty(drawing.names, "Color", esplibrary.names.color)
+                if drawing.names.Visible then
+                    if drawing["3dbox_1"].Visible then
+                            
+                        setrenderproperty(drawing.names, "Position", Vector2.new(threedboxtopcenter.X, threedboxtopcenter.Y - 12))
+                    else
+                        setrenderproperty(drawing.names, "Position", Vector2.new(headwts.X, drawing.box.Position.Y + drawing.box.Size.Y / 1 - 14))
+                    end
+                    if esplibrary.names.displaynames then
+                        setrenderproperty(drawing.names, "Text", player.DisplayName)
+                    else
+                        setrenderproperty(drawing.names, "Text", player.Name)
+                    end
+                end
+                --------------------------------------------------------------------------------------------------------------
+                if waistwts then
+                    setrenderproperty(drawing.weapon, "Visible", (onscreen and esplibrary.enabled and esplibrary.weapon.enabled and isvalid))
+                    setrenderproperty(drawing.weapon, "Color", esplibrary.weapon.color)
+        
+                    drawing.weapon.Text = utility:gettool(character)
+                    setrenderproperty(drawing.weapon, "Position", Vector2.new(drawing.box.Size.X + drawing.box.Position.X + 4, drawing.box.Position.Y - 15))
+                end
+                --
+                setrenderproperty(drawing.distance, "Visible", (onscreen and esplibrary.enabled and esplibrary.distance.enabled and isvalid))
+                setrenderproperty(drawing.distance, "Color", esplibrary.distance.color)
+                if drawing.distance.Visible then
+                    if drawing["3dbox_1"].Visible then
+                        setrenderproperty(drawing.distance, "Position", Vector2.new(threedboxbottomcenter.X, threedboxbottomcenter.Y + 3))
+                    
+                    else
+                        if drawing.weapon.Visible then
+                            drawing.distance.Position = Vector2.new(drawing.weapon.Position.X, drawing.weapon.Position.Y - 10)
+                        else
+                            drawing.distance.Position = Vector2.new(drawing.box.Size.X + drawing.box.Position.X + 4, drawing.box.Position.Y - 15)
+                        end
+                    end
+                    if utility:checkchar(localplayer) and utility:checkchar(player) then
+                        drawing.distance.Text = tostring(math.round(utility:distance(hrp, utility:gethrp(localplayer.Character))))..esplibrary.distance_measurement
+                    end
+                end
+                --------------------------------------------------------------------------------------------------------------
+
+
+                --------------------------------------------------------------------------------------------------------------
+
+                setrenderproperty(drawing.healthbar, "Visible", (onscreen and esplibrary.enabled and esplibrary.healthbars.enabled and isvalid and esplibrary.boxes.type == "Bounding"))
+                setrenderproperty(drawing.healthbaroutline, "Visible", drawing.healthbar.Visible)
+                do
+                    if esplibrary.boxes.type == "Bounding" then
+                        -- Bounding Box Health Bar
+                        setrenderproperty(drawing.healthbar, "Visible", (onscreen and esplibrary.enabled and esplibrary.healthbars.enabled and isvalid))
+                        setrenderproperty(drawing.healthbaroutline, "Visible", drawing.healthbar.Visible)
+                        if drawing.healthbar.Visible then
+                            if humanoid then
+                                local health, maxhealth = humanoid.Health, humanoid.MaxHealth
+                                local from = Vector2.new(drawing.box.Position.X - 5, drawing.box.Position.Y)
+                                local to = Vector2.new(from.X, from.Y + drawing.box.Size.Y * (health / maxhealth))
+            
+                                setrenderproperty(drawing.healthbar, "From", from)
+                                setrenderproperty(drawing.healthbar, "To", to)
+            
+                                setrenderproperty(drawing.healthbaroutline, "From", Vector2.new(from.X, from.Y + 2))
+                                setrenderproperty(drawing.healthbaroutline, "To", Vector2.new(from.X, from.Y + drawing.box.Size.Y - 2))
+                            end
+                        end
+                    end
+                end
+                --------------------------------------------------------------------------------------------------------------
+                setrenderproperty(drawing.healthtext, "Visible", (onscreen and esplibrary.enabled and esplibrary.healthtext.enabled and isvalid))
+                if drawing.healthtext.Visible then
+                    if drawing.healthbar.Visible then
+                        setrenderproperty(drawing.healthtext, "Position", Vector2.new(drawing.healthbar.To.X - 24, drawing.healthbar.To.Y))
+                    else
+                        local from = Vector2.new(drawing.box.Position.X - 5, drawing.box.Position.Y)
+                        setrenderproperty(drawing.healthtext, "Position", Vector2.new(from.X, from.Y + drawing.box.Size.Y))
+                    end
+                    if humanoid then
+                        setrenderproperty(drawing.healthtext, "Text", math.round(humanoid.Health))
+                    end
+                end
+                --------------------------------------------------------------------------------------------------------------
+                drawing.highlight.Enabled = esplibrary.enabled and isvalid
+                if drawing.highlight.Enabled then
+                    if esplibrary.chams.enabled then
+                        drawing.highlight.FillTransparency = esplibrary.chams.transparency
+                        drawing.highlight.FillColor = esplibrary.chams.color
+                    else
+                        drawing.highlight.FillTransparency = 1
+                    end
+                    if esplibrary.glow.enabled then
+                        drawing.highlight.OutlineTransparency = esplibrary.glow.transparency
+                        drawing.highlight.OutlineColor = esplibrary.glow.color
+                    else
+                        drawing.highlight.OutlineTransparency = 1
+                    end
+                end
+                --------------------------------------------------------------------------------------------------------------
+
+                --------------------------------------------------------------------------------------------------------------
+                if drawing.names.Font ~= esplibrary.textfont then
+                    drawing.names.Font = esplibrary.textfont
+                end
+                if drawing.names.Size ~= esplibrary.textsize then
+                    drawing.names.Size = esplibrary.textsize
+                end
+                ------------------------------------------------------------------
+                if drawing.distance.Font ~= esplibrary.textfont then
+                    drawing.distance.Font = esplibrary.textfont
+                end
+                if drawing.distance.Size ~= esplibrary.textsize then
+                    drawing.distance.Size = esplibrary.textsize
+                end
+                ------------------------------------------------------------------
+                if drawing.weapon.Font ~= esplibrary.textfont then
+                    drawing.weapon.Font = esplibrary.textfont
+                end
+                if drawing.weapon.Size ~= esplibrary.textsize then
+                    drawing.weapon.Size = esplibrary.textsize
+                end
+                ------------------------------------------------------------------
+                if drawing.healthtext.Font ~= esplibrary.textfont then
+                    drawing.healthtext.Font = esplibrary.textfont
+                end
+                if drawing.healthtext.Size ~= esplibrary.textsize then
+                    drawing.healthtext.Size = esplibrary.textsize
+                end
+            else
+                utility:remove(player)
+            end
+        end
+        for i, v in pairs(game.Players:GetPlayers()) do
+            if v ~= localplayer then
+                utility:create(v)
+            end
+        end
+    end)
+    utility:connection(esplibrary.unload, function()
+        for _, player in pairs(game.Players:GetPlayers()) do
+            utility:remove(player)
+        end
+        mainconnection:Disconnect()
+    end)
+    return esplibrary
