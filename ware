@@ -21,15 +21,15 @@ print("Executed")
         distance_format = 0.4,
         distance_measurement = "m",
         -- BOX/ETC
-        boxes = {["enabled"] = true, ["color"] = Color3.fromRGB(255, 255, 255), ["type"] = "Bounding"},
-        healthbars = {["enabled"] = true},
-        healthtext = {["enabled"] = true},
+        boxes = {["enabled"] = false, ["color"] = Color3.fromRGB(255, 255, 255), ["type"] = "Bounding"},
+        healthbars = {["enabled"] = false},
+        healthtext = {["enabled"] = false},
         -- TEXT
-        names = {["enabled"] = true, ["displaynames"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
-        distance = {["false"] = true, ["color"] = Color3.fromRGB(255, 255, 255)},
-        weapon = {["false"] = true, ["color"] = Color3.fromRGB(255, 255, 255)},
+        names = {["enabled"] = false, ["displaynames"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
+        distance = {["false"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
+        weapon = {["enabled"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
         --
-        chams = {["false"] = false, ["color"] = Color3.fromRGB(255, 255, 255), ["transparency"] = 0},
+        chams = {["enabled"] = true, ["color"] = Color3.fromRGB(255, 255, 255), ["transparency"] = 0},
         glow = {["false"] = false, ["color"] = Color3.fromRGB(255, 0, 140), ["transparency"] = 0},
 
         skeleton = {["skeleton"] = false, ["color"] = Color3.fromRGB(255, 255, 255)}
