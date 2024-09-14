@@ -27,7 +27,7 @@ print("Executed")
         -- TEXT
         names = {["enabled"] = false, ["displaynames"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
         distance = {["false"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
-        weapon = {["enabled"] = false, ["color"] = Color3.fromRGB(255, 255, 255)},
+        weapon = {["enabled"] = true, ["color"] = Color3.fromRGB(255, 255, 255)},
         --
         chams = {["enabled"] = true, ["color"] = Color3.fromRGB(255, 255, 255), ["transparency"] = 0},
         glow = {["false"] = false, ["color"] = Color3.fromRGB(255, 0, 140), ["transparency"] = 0},
